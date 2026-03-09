@@ -8,6 +8,7 @@ use cosmic::iced_winit::commands::popup::{destroy_popup, get_popup};
 use cosmic::prelude::*;
 use cosmic::widget;
 use futures_util::SinkExt;
+use std::time::Duration;
 
 /// The application model stores app-specific state used to describe its interface and
 /// drive its logic.
@@ -21,6 +22,8 @@ pub struct AppModel {
     config: Config,
     /// Example row toggler.
     example_row: bool,
+    /// Last known external IP text shown in UI.
+    external_ip_text: String,
 }
 
 /// Messages emitted by the application and its widgets.
@@ -28,9 +31,24 @@ pub struct AppModel {
 pub enum Message {
     TogglePopup,
     PopupClosed(Id),
-    SubscriptionChannel,
+    RefreshExternalIp,
+    ExternalIpFetched(Result<String, String>),
     UpdateConfig(Config),
     ToggleExampleRow(bool),
+}
+
+async fn fetch_external_ip() -> Result<String, String> {
+    let response = reqwest::get("https://api.ipify.org")
+        .await
+        .map_err(|err| err.to_string())?;
+    let ip = response.text().await.map_err(|err| err.to_string())?;
+    let ip = ip.trim();
+
+    if ip.is_empty() {
+        Err("Empty response while fetching external IP".to_string())
+    } else {
+        Ok(ip.to_string())
+    }
 }
 
 /// Create a COSMIC application from the app model
@@ -45,7 +63,7 @@ impl cosmic::Application for AppModel {
     type Message = Message;
 
     /// Unique identifier in RDNN (reverse domain name notation) format.
-    const APP_ID: &'static str = "{{ appid }}";
+    const APP_ID: &'static str = "com.github.derekkddj.cosmic-applet-publicip";
 
     fn core(&self) -> &cosmic::Core {
         &self.core
@@ -63,6 +81,7 @@ impl cosmic::Application for AppModel {
         // Construct the app model with the runtime's core.
         let app = AppModel {
             core,
+            external_ip_text: fl!("fetching-ip"),
             config: cosmic_config::Config::new(Self::APP_ID, Config::VERSION)
                 .map(|context| match Config::get_entry(&context) {
                     Ok(config) => config,
@@ -105,6 +124,7 @@ impl cosmic::Application for AppModel {
         let content_list = widget::list_column()
             .padding(5)
             .spacing(0)
+            .add(widget::settings::item(fl!("external-ip"), widget::text(&self.external_ip_text)))
             .add(widget::settings::item(
                 fl!("example-row"),
                 widget::toggler(self.example_row).on_toggle(Message::ToggleExampleRow),
@@ -127,9 +147,13 @@ impl cosmic::Application for AppModel {
             Subscription::run_with_id(
                 std::any::TypeId::of::<MySubscription>(),
                 cosmic::iced::stream::channel(4, move |mut channel| async move {
-                    _ = channel.send(Message::SubscriptionChannel).await;
-
-                    futures_util::future::pending().await
+                    let _ = channel.send(Message::RefreshExternalIp).await;
+                    loop {
+                        tokio::time::sleep(Duration::from_secs(60)).await;
+                        if channel.send(Message::RefreshExternalIp).await.is_err() {
+                            break;
+                        }
+                    }
                 }),
             ),
             // Watch for application configuration changes.
@@ -152,9 +176,13 @@ impl cosmic::Application for AppModel {
     /// tasks are finished.
     fn update(&mut self, message: Self::Message) -> Task<cosmic::Action<Self::Message>> {
         match message {
-            Message::SubscriptionChannel => {
-                // For example purposes only.
+            Message::RefreshExternalIp => {
+                return Task::perform(fetch_external_ip(), Message::ExternalIpFetched);
             }
+            Message::ExternalIpFetched(result) => match result {
+                Ok(ip) => self.external_ip_text = ip,
+                Err(_err) => self.external_ip_text = fl!("ip-unavailable"),
+            },
             Message::UpdateConfig(config) => {
                 self.config = config;
             }
