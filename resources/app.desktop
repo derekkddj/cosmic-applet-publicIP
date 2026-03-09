@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name={{ project-name | title_case }}
-Comment={{ description }}
+Name=Public IP
+Comment=COSMIC applet that displays your external IP address
 Type=Application
-Icon={{ appid }}
-Exec={{ project-name }} %F
+Icon=com.github.derekkddj.cosmic-applet-publicip
+Exec=cosmic-applet-publicip %F
 Terminal=false
 StartupNotify=true
 Categories=COSMIC
