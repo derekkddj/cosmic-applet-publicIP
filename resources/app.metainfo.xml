@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>{{ appid }}</id>
+  <id>com.github.derekkddj.cosmic-applet-publicip</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>{{ license }}</project_license>
-  <name>{{ project-name | title_case }}</name>
-  <summary>{{ description }}</summary>
+  <project_license>MIT</project_license>
+  <name>Public IP</name>
+  <summary>COSMIC applet that displays your external IP address</summary>
   <icon type="remote" width="64" height="64" scale="1">
-    {{ repository-url }}/raw/main/resources/icons/hicolor/scalable/apps/icon.svg
+    https://github.com/derekkddj/cosmic-applet-publicIP/raw/main/resources/icons/hicolor/scalable/apps/icon.svg
   </icon>
-  <url type="vcs-browser">{{ repository-url }}</url>
-  <launchable type="desktop-id">{{ appid }}.desktop</launchable>
+  <url type="vcs-browser">https://github.com/derekkddj/cosmic-applet-publicIP</url>
+  <launchable type="desktop-id">com.github.derekkddj.cosmic-applet-publicip.desktop</launchable>
   <provides>
-    <id>{{ appid }}</id>
+    <id>com.github.derekkddj.cosmic-applet-publicip</id>
     <binaries>
-      <binary>{{ project-name }}</binary>
+      <binary>cosmic-applet-publicip</binary>
     </binaries>
   </provides>
   <requires>
@@ -32,4 +32,3 @@
   </keywords>
   <content_rating type="oars-1.1" />
 </component>
-

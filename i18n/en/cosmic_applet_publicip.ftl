@@ -1,0 +1,10 @@
+app-title = Public IP
+about = About
+view = View
+welcome = Welcome to COSMIC! ✨
+page-id = Page { $num }
+git-description = Git commit {$hash} on {$date}
+example-row = Example Row
+external-ip = External IP
+fetching-ip = Fetching external IP...
+ip-unavailable = IP unavailable
