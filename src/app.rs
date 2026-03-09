@@ -116,8 +116,7 @@ impl cosmic::Application for AppModel {
     fn view(&self) -> Element<'_, Self::Message> {
         self.core
             .applet
-            .icon_button("display-symbolic")
-            .on_press(Message::TogglePopup)
+            .text_button(self.external_ip_text.clone(), Message::TogglePopup)
             .into()
     }
 
@@ -148,7 +147,7 @@ impl cosmic::Application for AppModel {
     /// continue to execute for the duration that they remain in the batch.
     fn subscription(&self) -> Subscription<Self::Message> {
         Subscription::batch(vec![
-            time::every(Duration::from_secs(60)).map(|_| Message::RefreshExternalIp),
+            time::every(Duration::from_secs(30)).map(|_| Message::RefreshExternalIp),
             // Watch for application configuration changes.
             self.core()
                 .watch_config::<Config>(Self::APP_ID)
