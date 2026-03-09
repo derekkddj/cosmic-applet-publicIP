@@ -176,7 +176,10 @@ impl cosmic::Application for AppModel {
             }
             Message::ExternalIpFetched(result) => match result {
                 Ok(ip) => self.external_ip_text = ip,
-                Err(_err) => self.external_ip_text = fl!("ip-unavailable"),
+                Err(err) => {
+                    eprintln!("error fetching external IP: {err}");
+                    self.external_ip_text = fl!("ip-unavailable");
+                }
             },
             Message::UpdateConfig(config) => {
                 self.config = config;
