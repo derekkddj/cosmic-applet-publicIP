@@ -114,9 +114,14 @@ impl cosmic::Application for AppModel {
     /// This view should emit messages to toggle the applet's popup window, which will
     /// be drawn using the `view_window` method.
     fn view(&self) -> Element<'_, Self::Message> {
+        const APPLET_TEXT_SIZE: u16 = 12;
+
         self.core
             .applet
-            .text_button(self.external_ip_text.clone(), Message::TogglePopup)
+            .text_button(
+                widget::text(self.external_ip_text.as_str()).size(APPLET_TEXT_SIZE),
+                Message::TogglePopup,
+            )
             .into()
     }
 
