@@ -116,7 +116,7 @@ impl cosmic::Application for AppModel {
     fn view(&self) -> Element<'_, Self::Message> {
         self.core
             .applet
-            .text_button(self.external_ip_text.clone(), Message::TogglePopup)
+            .text_button(self.external_ip_text.as_str(), Message::TogglePopup)
             .into()
     }
 
